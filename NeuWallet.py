@@ -1,7 +1,9 @@
 from web3 import Web3
-import hashlib
+from os.path import exists as file_exists
+from hashlib import sha256
 from web3.middleware import geth_poa_middleware
 import json
+
 
 with open('networks.json', 'r') as config:
 	    json_load = json.load(config)
@@ -87,8 +89,28 @@ def networks():
 def change_password():
     with open('config.json', 'r+') as config:
         data = json.load(config)
-        password = input("Enter Your password")
-        data["password"] = hashlib.sha256(password)
+        password = sha256(input("Enter your new password: ").encode('utf-8')).hexdigest()
+        data["password"] = password
+        config.seek(0)
+        config.write(json.dumps(data))
+        config.truncate()
+    print("\nYour password changed secessfully :) \n")
+
+     
+           
+if ( file_exists('networks.json') and file_exists('config.json') == True ):
+    with open('config.json', 'r+') as config:
+        data = json.load(config)
+        n = sha256(input("Enter your password: ").encode('utf-8')).hexdigest()
+        if ( data["password"] == n ) :
+            pass
+        else:
+            print("Wrong password!")
+            exit()
+else:
+    create_account()
+
+
 
 if __name__=='__main__':
     while(True):
@@ -118,7 +140,6 @@ if __name__=='__main__':
             exit()
         else:
             print('Invalid option. Please enter a number between 1 and 4.')
-
 
 
 
